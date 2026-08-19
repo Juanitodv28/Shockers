@@ -1,18 +1,12 @@
-export type SneakerBrand = 'NIKE' | 'ADIDAS' | 'JORDAN' | 'PUMA' | 'NEW BALANCE' | 'YEEZY';
+export type Brand = 'Nike' | 'Adidas' | 'Bape' | 'New Balance' | 'Asics' | 'Jordan' | 'LV' | 'Puma' | 'Vans';
 
-export interface SneakerColorway {
+export interface Sneaker {
   id: string;
   name: string;
-  reference: string;
-  image: string;
-  sizes: number[];
-}
-
-export interface SneakerModel {
-  id: number;
-  brand: SneakerBrand;
+  brand: Brand;
   silhouette: string;
-  name: string;
-  basePrice: number;
-  colorways: SneakerColorway[];
+  price: number;
+  image: string;
+  isFeatured: boolean;
+  sizes: number[];
 }
