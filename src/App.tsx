@@ -1,5 +1,17 @@
 import { useEffect, useState } from 'react';
 import CatalogGrid from './components/CatalogGrid';
+import SearchBar from './components/SearchBar';
+import { SNEAKERS_DATA } from './data/sneakers';
+import type { Sneaker } from './types/sneaker';
+
+const CUSTOM_ORDER_MESSAGE = [
+  '¡Hola Shockers! ⚡️🌟',
+  '',
+  'Busco un modelo o colorway especial sobre pedido que no está en la web.',
+  '¿Me ayudan a cotizarlo? 📲✨',
+].join('\n');
+
+const CUSTOM_ORDER_URL = `https://wa.me/573203634494?text=${encodeURIComponent(CUSTOM_ORDER_MESSAGE)}`;
 
 function ShockersLogo({ compact = false }: { compact?: boolean }) {
   return (
@@ -37,7 +49,7 @@ function CustomOrderBlock({ active, pulseKey }: { active: boolean; pulseKey: num
         </div>
 
         <a
-          href="https://wa.me/573203634494?text=Hola%20Shockers%20%E2%9A%A1%EF%B8%8F%2C%20me%20interesa%20un%20modelo%20o%20colorway%20que%20no%20veo%20aqu%C3%AD.%20%C2%BFPueden%20tra%C3%A9rmelo%20bajo%20pedido%3F"
+          href={CUSTOM_ORDER_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-zinc-900 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-white/20"
@@ -49,11 +61,48 @@ function CustomOrderBlock({ active, pulseKey }: { active: boolean; pulseKey: num
   );
 }
 
+function BrandIntro() {
+  return (
+    <section id="nosotros" className="mb-10 scroll-mt-28">
+      <div className="grid overflow-hidden rounded-[30px] border border-zinc-200 bg-white shadow-[0_20px_50px_rgba(24,24,27,0.08)] lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="flex min-h-[280px] items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-100 via-white to-zinc-200 p-8 sm:min-h-[330px] sm:p-10">
+          <img
+            src="/shockers.svg"
+            alt="Shockers"
+            className="h-auto w-full max-w-[380px] scale-[1.3] object-contain sm:scale-[1.45]"
+          />
+        </div>
+
+        <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
+          <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-zinc-500">Sobre Shockers</p>
+          <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
+            Sneakers para quienes hacen de su estilo una declaración.
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-600">
+            Somos una tienda especializada en sneakers icónicos, colaboraciones y siluetas que definen la cultura urbana.
+            Seleccionamos cada par para que encuentres modelos con identidad, calidad y carácter.
+          </p>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
+            Queremos hacer más fácil encontrar ese par que buscas: te orientamos, confirmamos disponibilidad y te conectamos
+            directamente con nuestro equipo para que compres con confianza.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.16em] text-zinc-600">
+            <span className="rounded-full bg-zinc-100 px-3 py-2">Atención directa</span>
+            <span className="rounded-full bg-zinc-100 px-3 py-2">Pares bajo pedido</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('catalogo');
   const [customPulseKey, setCustomPulseKey] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [catalogResetKey, setCatalogResetKey] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState<Sneaker | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 8);
@@ -103,6 +152,20 @@ function App() {
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const returnToCatalogHome = () => {
+    setSelectedProduct(null);
+    setCatalogResetKey((previous) => previous + 1);
+    scrollToSection('brand-NIKE');
+  };
+
+  const openProductDetail = (sneaker: Sneaker) => {
+    setSelectedProduct(sneaker);
+    setIsMobileMenuOpen(false);
+    window.requestAnimationFrame(() => {
+      document.getElementById('product-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   const navLinkClass = (id: string) =>
     [
       'text-sm font-medium transition-all duration-200 hover:translate-y-[-1px]',
@@ -122,12 +185,14 @@ function App() {
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <button
             type="button"
-            onClick={() => scrollToSection('brand-NIKE')}
+            onClick={returnToCatalogHome}
             className="flex items-center transition-transform duration-200 hover:scale-[1.02]"
             aria-label="Shockers home"
           >
             <ShockersLogo compact />
           </button>
+
+          <SearchBar products={SNEAKERS_DATA} onProductSelect={openProductDetail} />
 
           <button
             type="button"
@@ -147,16 +212,24 @@ function App() {
 
           <div className="hidden items-center gap-8 md:flex">
             <button type="button" onClick={() => scrollToSection('brand-NIKE')} className={navLinkClass('brand-NIKE')}>
-              Catálogo
+              Destacados
             </button>
             <button type="button" onClick={() => scrollToSection('custom')} className={navLinkClass('custom')}>
               Personalizados
             </button>
-            <button type="button" onClick={() => scrollToSection('nosotros')} className={navLinkClass('nosotros')}>
-              Nosotros
+            <button type="button" onClick={() => scrollToSection('nosotros')} className="group inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 transition-all duration-300 hover:-translate-y-0.5 hover:text-zinc-950">
+              <span>Nosotros</span>
+              <svg className="h-0 w-0 opacity-0 transition-all duration-300 group-hover:h-4 group-hover:w-4 group-hover:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
+              </svg>
+              <span className="max-w-0 overflow-hidden whitespace-nowrap text-[10px] font-bold opacity-0 transition-all duration-300 group-hover:max-w-24 group-hover:opacity-100">
+                @shockers.bta
+              </span>
             </button>
             <a
-              href="https://wa.me/573203634494?text=Hola%20Shockers%20%E2%9A%A1%EF%B8%8F%2C%20quiero%20hacer%20una%20consulta."
+              href={CUSTOM_ORDER_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-zinc-900/20"
@@ -179,7 +252,7 @@ function App() {
               onClick={() => scrollToSection('brand-NIKE')}
               className={`${navLinkClass('brand-NIKE')} rounded-2xl px-4 py-3 text-left hover:bg-zinc-100`}
             >
-              Catálogo
+              Destacados
             </button>
             <button
               type="button"
@@ -188,15 +261,11 @@ function App() {
             >
               Personalizados
             </button>
-            <button
-              type="button"
-              onClick={() => scrollToSection('nosotros')}
-              className={`${navLinkClass('nosotros')} rounded-2xl px-4 py-3 text-left hover:bg-zinc-100`}
-            >
+            <button type="button" onClick={() => scrollToSection('nosotros')} className="rounded-2xl px-4 py-3 text-left font-medium text-zinc-600 transition-all hover:bg-zinc-100 hover:text-zinc-950">
               Nosotros
             </button>
             <a
-              href="https://wa.me/573203634494?text=Hola%20Shockers%20%E2%9A%A1%EF%B8%8F%2C%20quiero%20hacer%20una%20consulta."
+              href={CUSTOM_ORDER_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -210,8 +279,14 @@ function App() {
 
       <main className="mx-auto max-w-7xl px-4 pb-8 pt-24 sm:px-6 lg:px-8 lg:pt-28">
         <section id="catalogo" className="scroll-mt-28">
+          <BrandIntro />
           <CustomOrderBlock active={activeSection === 'custom'} pulseKey={customPulseKey} />
-          <CatalogGrid />
+          <CatalogGrid
+            key={catalogResetKey}
+            selectedProduct={selectedProduct}
+            onProductSelect={openProductDetail}
+            onProductClear={() => setSelectedProduct(null)}
+          />
         </section>
       </main>
 
@@ -221,20 +296,37 @@ function App() {
             <ShockersLogo compact />
           </div>
 
-          <div className="flex flex-col gap-3 text-sm text-zinc-600 sm:flex-row sm:items-center sm:gap-8">
-            <button type="button" onClick={() => scrollToSection('brand-NIKE')} className="transition-colors hover:text-zinc-900">
-              Catálogo
-            </button>
-            <button type="button" onClick={() => scrollToSection('custom')} className="transition-colors hover:text-zinc-900">
-              Personalizados
-            </button>
+          <div className="flex flex-col gap-6 text-sm text-zinc-600 sm:flex-row sm:items-center sm:gap-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-8">
+              <button type="button" onClick={returnToCatalogHome} className="transition-colors hover:text-zinc-900">
+                Destacados
+              </button>
+              <button type="button" onClick={() => scrollToSection('custom')} className="transition-colors hover:text-zinc-900">
+                Personalizados
+              </button>
+              <a
+                href={CUSTOM_ORDER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-zinc-900"
+              >
+                +57 320 3634494
+              </a>
+            </div>
+
             <a
-              href="https://wa.me/573203634494?text=Hola%20Shockers%20%E2%9A%A1%EF%B8%8F%2C%20quiero%20hacer%20una%20consulta."
+              href="https://www.instagram.com/shockers.bta/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-zinc-900"
+              aria-label="Visitar Instagram de Shockers"
+              className="inline-flex items-center gap-3 font-semibold text-zinc-900 transition-all duration-200 hover:-translate-y-0.5 hover:text-zinc-600"
             >
-              +57 320 3634494
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
+              </svg>
+              <span>Instagram · @shockers.bta</span>
             </a>
           </div>
         </div>

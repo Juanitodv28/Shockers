@@ -1,4 +1,16 @@
-export type Brand = 'Nike' | 'Adidas' | 'Bape' | 'New Balance' | 'Asics' | 'Jordan' | 'LV' | 'Puma' | 'Vans';
+export type Brand =
+  | 'Nike'
+  | 'Adidas'
+  | 'Bape'
+  | 'New Balance'
+  | 'Asics'
+  | 'Jordan'
+  | 'LV'
+  | 'Louis Vuitton'
+  | 'Puma'
+  | 'Vans'
+  | 'Timberland'
+  | 'Osiris';
 
 export interface Sneaker {
   id: string;
