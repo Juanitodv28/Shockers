@@ -53,6 +53,7 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('catalogo');
   const [customPulseKey, setCustomPulseKey] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 8);
@@ -98,6 +99,7 @@ function App() {
     }
 
     setActiveSection(id === 'brand-NIKE' ? 'catalogo' : id);
+    setIsMobileMenuOpen(false);
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -127,6 +129,22 @@ function App() {
             <ShockersLogo compact />
           </button>
 
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((previous) => !previous)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/70 text-zinc-900 shadow-sm transition-all hover:bg-white md:hidden"
+            aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
+          >
+            <span className="sr-only">{isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
+            <span className="flex w-5 flex-col gap-1.5" aria-hidden="true">
+              <span className="h-0.5 w-full rounded-full bg-current" />
+              <span className="h-0.5 w-full rounded-full bg-current" />
+              <span className="h-0.5 w-full rounded-full bg-current" />
+            </span>
+          </button>
+
           <div className="hidden items-center gap-8 md:flex">
             <button type="button" onClick={() => scrollToSection('brand-NIKE')} className={navLinkClass('brand-NIKE')}>
               Catálogo
@@ -147,6 +165,47 @@ function App() {
             </a>
           </div>
         </nav>
+
+        <div
+          id="mobile-navigation"
+          className={[
+            'border-t border-zinc-200/80 bg-white/90 px-4 py-4 shadow-lg backdrop-blur-xl transition-all duration-200 md:hidden',
+            isMobileMenuOpen ? 'visible max-h-96 opacity-100' : 'invisible max-h-0 overflow-hidden opacity-0',
+          ].join(' ')}
+        >
+          <div className="mx-auto flex max-w-7xl flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => scrollToSection('brand-NIKE')}
+              className={`${navLinkClass('brand-NIKE')} rounded-2xl px-4 py-3 text-left hover:bg-zinc-100`}
+            >
+              Catálogo
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('custom')}
+              className={`${navLinkClass('custom')} rounded-2xl px-4 py-3 text-left hover:bg-zinc-100`}
+            >
+              Personalizados
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('nosotros')}
+              className={`${navLinkClass('nosotros')} rounded-2xl px-4 py-3 text-left hover:bg-zinc-100`}
+            >
+              Nosotros
+            </button>
+            <a
+              href="https://wa.me/573203634494?text=Hola%20Shockers%20%E2%9A%A1%EF%B8%8F%2C%20quiero%20hacer%20una%20consulta."
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-zinc-950 px-4 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+            >
+              Escríbenos
+            </a>
+          </div>
+        </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-4 pb-8 pt-24 sm:px-6 lg:px-8 lg:pt-28">

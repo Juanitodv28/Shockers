@@ -64,9 +64,8 @@ export default function CatalogGrid() {
 
   return (
     <section className="mx-auto w-full max-w-7xl">
-      <div className="mb-8 overflow-hidden rounded-full border border-zinc-200 bg-white/80 p-2 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-md">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {FILTER_OPTIONS.map((brand) => {
+      <div className="mb-8 flex overflow-x-auto whitespace-nowrap scrollbar-none gap-2 rounded-full border border-zinc-200 bg-white/80 p-2 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-md md:justify-center md:overflow-visible">
+        {FILTER_OPTIONS.map((brand) => {
             const isActive = selectedBrand === brand;
 
             return (
@@ -75,7 +74,7 @@ export default function CatalogGrid() {
                 type="button"
                 onClick={() => handleBrandClick(brand)}
                 className={[
-                  'rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200',
+                  'flex-shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200',
                   isActive
                     ? 'bg-zinc-950 text-white shadow-lg shadow-zinc-900/20'
                     : 'bg-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900',
@@ -84,8 +83,7 @@ export default function CatalogGrid() {
                 {brand}
               </button>
             );
-          })}
-        </div>
+        })}
       </div>
 
       <div className="space-y-12">
